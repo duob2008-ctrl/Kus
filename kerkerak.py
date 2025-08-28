@@ -3,7 +3,7 @@ from threading import Thread
 from telebot import TeleBot, types
 import random
 
-API_TOKEN = '7979757018:AAEj3Y-_Jc3iWLJWmcx86ZbqEhJYo0JFhrc'
+API_TOKEN = '7907926145:AAHvHgm4z1CF4xHtCV6LAt04Wyy0LY2rNv8'
 ADMIN_ID = 6852738257
 KARTA = '9860356610242188'
 CHANNEL_LINK = "https://t.me/Sardor_ludoman"
