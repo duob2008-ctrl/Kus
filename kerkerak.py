@@ -411,7 +411,6 @@ def webhook():
     try:
         if request.headers.get('content-type') == 'application/json':
             json_string = request.get_data().decode('utf-8')
-            update = types.Update.de_json(json_string, bot)  # ← bot qo‘shildi
             bot.process_new_updates([update])
             return 'OK', 200
         else:
