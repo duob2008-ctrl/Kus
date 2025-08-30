@@ -2,6 +2,7 @@ from flask import Flask, request
 from threading import Thread
 from telebot import TeleBot, types
 import random
+import requests
 import os
 
 API_TOKEN = '7907926145:AAHvHgm4z1CF4xHtCV6LAt04Wyy0LY2rNv8'
