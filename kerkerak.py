@@ -1,15 +1,20 @@
-from flask import Flask
-from threading import Thread
+        from flask import Flask, request
 from telebot import TeleBot, types
 import random
+import json
 
 API_TOKEN = '7907926145:AAHvHgm4z1CF4xHtCV6LAt04Wyy0LY2rNv8'
 ADMIN_ID = 6852738257
 KARTA = '9860356610242188'
 CHANNEL_LINK = "https://t.me/Sardor_ludoman"
 
+# Webhook URL - Render deploy qilgandan keyin o'zgartirasiz
+WEBHOOK_URL = 'https://kus-wdv4.onrender.com'
+
 bot = TeleBot(API_TOKEN)
 user_data = {}
+
+app = Flask(__name__)
 
 def main_menu(chat_id, text="💎 TezkorPay - Tez va ishonchli to'lov tizimi"):
     markup = types.InlineKeyboardMarkup(row_width=2)
@@ -402,22 +407,34 @@ def handle_messages(message):
             
             bot.send_message(cid, confirmation_text, reply_markup=markup)
 
-# Flask server
-app = Flask('')
-
+# Flask routes
 @app.route('/')
 def home():
     return "TezkorPay Bot ishlamoqda! ✅"
 
-def run():
-    app.run(host='0.0.0.0', port=8080)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        return 'Error'
 
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
+@app.route('/set_webhook')
+def set_webhook():
+    """Webhook o'rnatish uchun URL"""
+    try:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
+        return f"Webhook o'rnatildi: {WEBHOOK_URL}/webhook"
+    except Exception as e:
+        return f"Xatolik: {str(e)}"
 
 if __name__ == '__main__':
-    keep_alive()
-    bot.remove_webhook()
     print("Bot ishga tushdi...")
-    bot.polling(none_stop=True)
+    # Render automatic portni aniqlash
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
