@@ -425,5 +425,10 @@ def set_webhook():
     r = requests.get(f"https://api.telegram.org/bot{API_TOKEN}/setWebhook?url={url}")
     return r.json()
 
+# 👇 Uptime uchun route
+@app.route('/')
+def home():
+    return "✅ TezkorPay Bot ishlayapti!"
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
