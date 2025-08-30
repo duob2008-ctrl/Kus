@@ -406,24 +406,23 @@ def handle_messages(message):
             bot.send_message(cid, confirmation_text, reply_markup=markup)
 
 
+# Webhookni qabul qilish
 @app.route('/webhook', methods=['POST'])
 def webhook():
     if request.headers.get('content-type') == 'application/json':
         json_string = request.get_data().decode('utf-8')
-        update = types.Update.de_json(json_string, bot)   # ← bot qo‘shiladi!
+        update = types.Update.de_json(json_string, bot)
         bot.process_new_updates([update])
         return 'OK', 200
     else:
         return 'Invalid request', 400
-    except Exception as e:
-        print(f"Webhook xatolik: {e}")
-        import traceback
-        traceback.print_exc()
-        return 'Error', 200   # ⚡️ 200 qaytaramiz, Telegram xato deb hisoblamasin
 
-@app.route('/')
-def home():
-    return "Bot ishlayapti ✅"
+# Webhookni o‘rnatish
+@app.route('/set_webhook')
+def set_webhook():
+    url = f"{WEBHOOK_URL}/webhook"
+    r = requests.get(f"https://api.telegram.org/bot{API_TOKEN}/setWebhook?url={url}")
+    return r.json()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
