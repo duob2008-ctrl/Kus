@@ -2,6 +2,7 @@ from flask import Flask
 from threading import Thread
 from telebot import TeleBot, types
 import random
+import os
 
 API_TOKEN = '7979757018:AAEj3Y-_Jc3iWLJWmcx86ZbqEhJYo0JFhrc'
 ADMIN_ID = 6852738257
@@ -464,6 +465,5 @@ def test_bot():
 if __name__ == '__main__':
     print("Bot ishga tushdi...")
     # Render automatic portni aniqlash
-    import os
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=True)
