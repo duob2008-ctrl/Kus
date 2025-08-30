@@ -1,19 +1,14 @@
-        from flask import Flask, request
+from threading import Thread
 from telebot import TeleBot, types
 import random
-import json
 
-API_TOKEN = '7907926145:AAHvHgm4z1CF4xHtCV6LAt04Wyy0LY2rNv8'
+API_TOKEN = '7979757018:AAEj3Y-_Jc3iWLJWmcx86ZbqEhJYo0JFhrc'
 ADMIN_ID = 6852738257
 KARTA = '9860356610242188'
 CHANNEL_LINK = "https://t.me/Sardor_ludoman"
-
-# Webhook URL - Render deploy qilgandan keyin o'zgartirasiz
-WEBHOOK_URL = 'https://kus-wdv4.onrender.com'
-
+WEBHOOK_URL = 'https://your-app-name.onrender.com'
 bot = TeleBot(API_TOKEN)
 user_data = {}
-
 app = Flask(__name__)
 
 def main_menu(chat_id, text="💎 TezkorPay - Tez va ishonchli to'lov tizimi"):
@@ -407,28 +402,61 @@ def handle_messages(message):
             
             bot.send_message(cid, confirmation_text, reply_markup=markup)
 
-# Flask routes
+
 @app.route('/')
 def home():
     return "TezkorPay Bot ishlamoqda! ✅"
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_string = request.get_data().decode('utf-8')
-        update = types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        return 'Error'
+    try:
+        print("Webhook so'rov keldi!")
+        print(f"Content-Type: {request.headers.get('content-type')}")
+        
+        if request.headers.get('content-type') == 'application/json':
+            json_string = request.get_data().decode('utf-8')
+            print(f"Kelgan ma'lumot: {json_string}")
+            
+            update = types.Update.de_json(json_string)
+            print(f"Update parsed: {update}")
+            
+            bot.process_new_updates([update])
+            print("Update qayta ishlandi!")
+            return 'OK', 200
+        else:
+            print("Noto'g'ri content type!")
+            return 'Wrong content type', 400
+    except Exception as e:
+        print(f"Webhook xatolik: {e}")
+        import traceback
+        traceback.print_exc()
+        return 'Error', 500
 
 @app.route('/set_webhook')
 def set_webhook():
     """Webhook o'rnatish uchun URL"""
     try:
         bot.remove_webhook()
-        bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
-        return f"Webhook o'rnatildi: {WEBHOOK_URL}/webhook"
+        result = bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
+        return f"Webhook o'rnatildi: {WEBHOOK_URL}/webhook | Result: {result}"
+    except Exception as e:
+        return f"Xatolik: {str(e)}"
+
+@app.route('/webhook_info')
+def webhook_info():
+    """Webhook holatini tekshirish"""
+    try:
+        info = bot.get_webhook_info()
+        return f"Webhook URL: {info.url}<br>Pending updates: {info.pending_update_count}<br>Last error: {info.last_error_message}"
+    except Exception as e:
+        return f"Xatolik: {str(e)}"
+
+@app.route('/test_bot')
+def test_bot():
+    """Bot ishlashini test qilish"""
+    try:
+        bot.send_message(ADMIN_ID, "🧪 Test xabar - Bot ishlayapti!")
+        return "Test xabar yuborildi!"
     except Exception as e:
         return f"Xatolik: {str(e)}"
 
@@ -437,4 +465,4 @@ if __name__ == '__main__':
     # Render automatic portni aniqlash
     import os
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
